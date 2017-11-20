@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.efremov.urlshortener.rest;
+package org.efremov.urlshortener.commons;
 
 import java.util.List;
 
@@ -11,18 +11,18 @@ import java.util.List;
  *
  * @author aaefr
  */
-public class ValidationErrors {
-    List<ValidationError> errors;
+public class Errors<T> {
+    List<T> errors;
 
-    public ValidationErrors(List<ValidationError> errors) {
+    public Errors(List<T> errors) {
         this.errors = errors;
     }
 
-    public List<ValidationError> getErrors() {
+    public List<T> getErrors() {
         return errors;
     }
 
-    public void setErrors(List<ValidationError> errors) {
+    public void setErrors(List<T> errors) {
         this.errors = errors;
     }
 }

@@ -5,30 +5,25 @@
  */
 package org.efremov.urlshortener.rest;
 
+import org.efremov.urlshortener.commons.Error;
+
 /**
  *
  * @author aaefr
  */
-public class ValidationError {
-    private String message;
+public class ValidationError extends Error {
     private String propertyPath;
     private Object invalidValue;
 
     public ValidationError() {
     }
+
+    public ValidationError(String propertyPath, Object invalidValue, String message, String errorType) {
+        super(message, errorType);
+        this.propertyPath = propertyPath;
+        this.invalidValue = invalidValue;
+    }
     
-    public ValidationError(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public String getPropertyPath() {
         return propertyPath;
     }
