@@ -31,7 +31,7 @@ import org.efremov.urlshortener.repository.UrlRepository;
  *
  * @author aaefr
  */
-@Api(description = "Root REST Endpoint", tags = {"urlshortner"})
+@Api
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class URLResource {
@@ -52,8 +52,8 @@ public class URLResource {
     
     @ApiOperation(value = "Redirect client to URL associeted with provided shortUrl id")
     @ApiResponses(value = {
-        @ApiResponse(code = 404, message = "Short URL id not found"),
-        @ApiResponse(code = 401, message = "Invalid login/password")
+        @ApiResponse(code = 404, message = "Short URL id not found or provided path is incorrect"),
+        @ApiResponse(code = 304, message = "Request has been processed successfuly. Short URL found and request will be redirected to corresponding URL")
     })
     @GET
     @Path("/{id}")
@@ -73,6 +73,13 @@ public class URLResource {
      * @param uriInfo
      * @return *
      */
+    @ApiOperation(value = "Creates short URL",
+            notes = "Correct URL must be provided")
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid URL provided"),
+        @ApiResponse(code = 200, message = "Request has been processed successfully"),
+        @ApiResponse(code = 201, message = "Request has been processed successfully. New short URL created.")
+    })
     @GET
     @Path("/new/{url}")
     public Response getShortUrl(@PathParam("url")
