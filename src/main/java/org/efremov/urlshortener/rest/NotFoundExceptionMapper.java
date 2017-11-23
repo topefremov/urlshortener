@@ -23,7 +23,7 @@ public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundExceptio
 
     @Override
     public Response toResponse(NotFoundException e) {
-        return Util.buildResponse(NotFoundErrorsBuilder.create(),
+        return Util.buildResponse(Util.createNotFoundErrors(),
                 Status.NOT_FOUND, MediaType.APPLICATION_JSON);
     }
 

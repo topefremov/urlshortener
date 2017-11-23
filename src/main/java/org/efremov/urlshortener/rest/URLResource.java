@@ -24,7 +24,7 @@ import javax.ws.rs.core.UriInfo;
 import org.hibernate.validator.constraints.URL;
 
 import org.efremov.urlshortener.commons.Util;
-import org.efremov.urlshortener.domain.URLEntity;
+import org.efremov.urlshortener.domain.URLS;
 import org.efremov.urlshortener.repository.UrlRepository;
 
 /**
@@ -42,11 +42,11 @@ public class URLResource {
     @Context
     UriInfo uriInfo;
     
-    ShortUrlBuilder sub;
+    private String baseUri;
     
     @PostConstruct
     public void init() {
-        sub = new ShortUrlBuilder(uriInfo.getBaseUri().toString());
+        baseUri = uriInfo.getBaseUri().toString();
         
     }
     
@@ -58,11 +58,11 @@ public class URLResource {
     @GET
     @Path("/{id}")
     public Response redirectToLongUrl(@PathParam("id") Long id) {
-        URLEntity urlObj = urlRepository.findById(id);
+        URLS urlObj = urlRepository.findById(id);
         if (urlObj != null) {
             return Response.temporaryRedirect(URI.create(urlObj.getLongURL())).build();
         } else {
-            return Util.buildResponse(NotFoundErrorsBuilder.create(), Status.NOT_FOUND);
+            return Util.buildResponse(Util.createNotFoundErrors(), Status.NOT_FOUND);
         }
     }
 
@@ -81,16 +81,16 @@ public class URLResource {
         @ApiResponse(code = 201, message = "Request has been processed successfully. New short URL created.")
     })
     @GET
-    @Path("/new/{url}")
-    public Response getShortUrl(@PathParam("url")
-            @URL(message = "Should be proper URL format") String url,
-            @Context UriInfo uriInfo) {
-        URLEntity urlObj = urlRepository.findByLongUrl(url);
-        if (urlObj == null) {
-            urlObj = new URLEntity(url);
-            urlRepository.create(urlObj);
-            return Util.buildResponse(sub.fromURLEntity(urlObj), Status.CREATED);
+    @Path("/new/{lUrl}")
+    public Response getShortUrl(@PathParam("lUrl") @URL(message = "Should be proper URL format") String lUrl) {
+        Status status = Status.OK;
+        URLS urlsObj = urlRepository.findByLongUrl(lUrl);
+        if (urlsObj == null) {
+            urlsObj = new URLS(lUrl);
+            urlsObj = urlRepository.create(urlsObj);
+            status = Status.CREATED;
         }
-        return Util.buildResponse(sub.fromURLEntity(urlObj), Status.OK);
+        urlsObj.setShortURL(baseUri + urlsObj.getId());
+        return Util.buildResponse(urlsObj, status);
     }
 }

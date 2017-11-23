@@ -10,7 +10,7 @@ ARG VER
 LABEL name="URL shortener microservice"
 LABEL description="URL shortener microservice. Project for freeCodeCamp."
 LABEL version=${VER}
-LABEL url="http://localhost:8080/u/"
+LABEL url="http://localhost:8080/u"
 LABEL vendor="@efremov"
 
 

@@ -3,9 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.efremov.urlshortener.rest;
-
-import org.efremov.urlshortener.commons.Error;
+package org.efremov.urlshortener.commons;
 
 /**
  *
@@ -18,7 +16,7 @@ public class ValidationError extends Error {
     public ValidationError() {
     }
 
-    public ValidationError(String propertyPath, Object invalidValue, String message, String errorType) {
+    public ValidationError(String message, String propertyPath, Object invalidValue, String errorType) {
         super(message, errorType);
         this.propertyPath = propertyPath;
         this.invalidValue = invalidValue;

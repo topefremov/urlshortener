@@ -11,7 +11,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
-import org.efremov.urlshortener.domain.URLEntity;
+import org.efremov.urlshortener.domain.URLS;
 
 /**
  *
@@ -23,17 +23,17 @@ public class UrlRepository {
     @PersistenceContext
     EntityManager em;
     
-    public URLEntity create(URLEntity url) {
+    public URLS create(URLS url) {
         em.persist(url);
         return url;
     }
     
-    public URLEntity findById(Long id) {
-        return em.find(URLEntity.class, id);
+    public URLS findById(Long id) {
+        return em.find(URLS.class, id);
     }
     
-    public URLEntity findByLongUrl(String longUrl) {
-        TypedQuery<URLEntity> query = em.createNamedQuery(URLEntity.FIND_BY_LONG_URL, URLEntity.class)
+    public URLS findByLongUrl(String longUrl) {
+        TypedQuery<URLS> query = em.createNamedQuery(URLS.FIND_BY_LONG_URL, URLS.class)
                 .setParameter("longUrl", longUrl);
         try {
             return query.getSingleResult();
