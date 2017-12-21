@@ -1,0 +1,30 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "URL Shortener Service",
+    "version" : "1.0",
+    "title" : "URL Shortener API"
+  },
+  "host" : "localhost:8080",
+  "basePath" : "/u",
+  "schemes" : [ "http" ],
+  "paths" : {
+    "/url" : {
+      "post" : {
+        "summary" : "Creates short URL",
+        "description" : "Correct URL must be provided",
+        "operationId" : "createShortUrl",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "201" : {
+            "description" : "Request has been processed successfully. New short URL created."
+          },
+          "400" : {
+            "description" : "Invalid URL provided"
+          }
+        }
+      }
+    }
+  }
+}
