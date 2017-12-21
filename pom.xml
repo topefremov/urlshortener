@@ -216,7 +216,7 @@
                             <locations>org.efremov.urlshortener.rest</locations>
                             <schemes>http</schemes>
                             <host>localhost:8080</host>
-                            <basePath>/u</basePath>
+                            <basePath>/</basePath>
                             <info>
                                 <title>URL Shortener API</title>
                                 <version>${project.version}</version>

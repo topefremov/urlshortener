@@ -6,7 +6,7 @@
     "title" : "URL Shortener API"
   },
   "host" : "localhost:8080",
-  "basePath" : "/u",
+  "basePath" : "/",
   "schemes" : [ "http" ],
   "paths" : {
     "/url" : {

@@ -8,6 +8,7 @@ package org.efremov.urlshortener.service;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.core.Response;
 import org.efremov.urlshortener.domain.Url;
 
 /**
@@ -18,5 +19,6 @@ public interface UrlShortenerService {
     Url createShortUrl(String longUrl);
     void createShortUrlAsync(String longUrl, AsyncResponse ar);
     CompletableFuture<Url> createShrotUrlAsync(String longUrl, String baseUri);
-    CompletableFuture<Url> createShortUrlIfNotExistAsync(String longUrl, String baseUri) throws InterruptedException, ExecutionException;
+    CompletableFuture<Response> createShortUrlIfNotExistAndGetResponseAsync(String longUrl, String baseUri);
+    CompletableFuture<Url> findByLongUrl(String longUrl);
 }

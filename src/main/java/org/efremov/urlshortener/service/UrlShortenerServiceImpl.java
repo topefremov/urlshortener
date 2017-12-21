@@ -6,7 +6,6 @@
 package org.efremov.urlshortener.service;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -18,9 +17,7 @@ import javax.ws.rs.core.MediaType;
 import org.efremov.urlshortener.commons.Property;
 import org.efremov.urlshortener.domain.Url;
 import java.util.function.Function;
-import java.util.logging.Logger;
-import javax.enterprise.context.RequestScoped;
-import javax.transaction.Transactional;
+import javax.ejb.Stateless;
 import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.Response;
@@ -31,13 +28,11 @@ import org.efremov.urlshortener.repository.UrlRepository;
  *
  * @author efrem
  */
-@RequestScoped
-@Transactional
+@Stateless
 public class UrlShortenerServiceImpl implements UrlShortenerService {
 
     private Client client;
     private WebTarget idGeneratorTarget;
-    private Logger logger;
 
     @Inject
     @Property(required = true, value = "idGeneratorServiceUrl")
@@ -48,7 +43,6 @@ public class UrlShortenerServiceImpl implements UrlShortenerService {
     
     @PostConstruct
     private void setUp() {
-        logger = Logger.getLogger(UrlShortenerServiceImpl.class.getName());
         client = ClientBuilder.newClient();
         idGeneratorTarget = client.target(idGeneratorServiceUrl);
     }
@@ -87,9 +81,10 @@ public class UrlShortenerServiceImpl implements UrlShortenerService {
     public CompletableFuture<Url> createShrotUrlAsync(String longUrl, String baseUri) {
         Function<String, Url> persistUrl
                 = shortUrl -> {
-                    System.out.println("before resume");
                     return urlRepository.create(new Url(baseUri + shortUrl, longUrl));
                 };
+        
+        System.out.println("Inside createShortUrlAsync");
 
         return CompletableFuture.supplyAsync(
                 () -> idGeneratorTarget
@@ -99,16 +94,24 @@ public class UrlShortenerServiceImpl implements UrlShortenerService {
     }
 
     @Override
-    public CompletableFuture<Url> createShortUrlIfNotExistAsync(String longUrl, String baseUri) throws InterruptedException, ExecutionException {
-        Function<Url, CompletableFuture<Url>> returnFoundedUrlOrCreate
+    public CompletableFuture<Response> createShortUrlIfNotExistAndGetResponseAsync(String longUrl, String baseUri) {
+        Function<Url, CompletableFuture<Response>> returnFoundedUrlOrCreate
                 = url -> {
                     if (url == null) {
-                        return createShrotUrlAsync(longUrl, baseUri);
+                        return createShrotUrlAsync(longUrl, baseUri)
+                                .thenApply(_url -> Util.buildResponse(_url, Response.Status.CREATED));
                     }
-                    return CompletableFuture.completedFuture(url);
+                    return CompletableFuture.completedFuture(url)
+                            .thenApply(_url -> Util.buildResponse(_url, Response.Status.OK));
                 };
+        return findByLongUrl(longUrl)
+                .thenCompose(returnFoundedUrlOrCreate);
+    }
+
+    @Override
+    public CompletableFuture<Url> findByLongUrl(String longUrl) {
         return CompletableFuture.supplyAsync(() -> urlRepository.findByLongUrl(longUrl))
-                .thenApply(returnFoundedUrlOrCreate).get();
+                .thenApply(url -> url);
     }
 
 }

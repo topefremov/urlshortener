@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import javax.annotation.PostConstruct;
 import javax.ejb.Asynchronous;
 import javax.inject.Inject;
@@ -42,21 +43,21 @@ public class URLResource {
 
     @Inject
     UrlRepository urlRepository;
-    
+
     @Inject
     UrlShortenerService urlShortenerService;
-    
+
     @Context
     UriInfo uriInfo;
-    
+
     private String baseUri;
-    
+
     @PostConstruct
     public void init() {
         baseUri = uriInfo.getBaseUri().toString();
-        
+
     }
-    
+
 //    @ApiOperation(value = "Redirect client to URL associeted with provided shortUrl id")
 //    @ApiResponses(value = {
 //        @ApiResponse(code = 404, message = "Short URL id not found or provided path is incorrect"),
@@ -72,7 +73,6 @@ public class URLResource {
 //            return Util.buildResponse(Util.createNotFoundErrors(), Status.NOT_FOUND);
 //        }
 //    }
-
     /**
      * ENDPOINTS
      *
@@ -83,20 +83,15 @@ public class URLResource {
     @ApiOperation(value = "Creates short URL",
             notes = "Correct URL must be provided")
     @ApiResponses(value = {
-        @ApiResponse(code = 400, message = "Invalid URL provided"),
+        @ApiResponse(code = 400, message = "Invalid URL provided")
+        ,
         @ApiResponse(code = 201, message = "Request has been processed successfully. New short URL created.")
     })
     @POST
     @Asynchronous
     @Consumes("application/json")
-    public void createShortUrl(@Suspended final AsyncResponse ar, @Valid Url url) throws InterruptedException, ExecutionException {
-        Status status = Status.OK;
-        
-        CompletableFuture<Url> futurePersistedUrl = urlShortenerService.createShortUrlIfNotExistAsync(url.getLongURL(), baseUri);
-        ar.resume(
-                Util.buildResponse(
-                        futurePersistedUrl.get(), 
-                        Status.CREATED));
-        System.out.println("after resume");
+    public void createShortUrl(@Suspended final AsyncResponse ar, @Valid Url url) {
+        urlShortenerService.createShortUrlIfNotExistAndGetResponseAsync(url.getLongURL(), baseUri)
+                .thenAccept(ar::resume);
     }
 }
