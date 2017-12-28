@@ -6,22 +6,13 @@
 package org.efremov.urlshortener.service;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import org.efremov.urlshortener.commons.Property;
 import org.efremov.urlshortener.domain.Url;
 import java.util.function.Function;
 import javax.ejb.Stateless;
-import javax.ws.rs.client.InvocationCallback;
-import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.Response;
 import org.efremov.urlshortener.commons.Util;
+import org.efremov.urlshortener.newpackage.client.IdGeneratorClient;
 import org.efremov.urlshortener.repository.UrlRepository;
 
 /**
@@ -31,51 +22,16 @@ import org.efremov.urlshortener.repository.UrlRepository;
 @Stateless
 public class UrlShortenerServiceImpl implements UrlShortenerService {
 
-    private Client client;
-    private WebTarget idGeneratorTarget;
-
-    @Inject
-    @Property(required = true, value = "idGeneratorServiceUrl")
-    private String idGeneratorServiceUrl;
-
     @Inject
     private UrlRepository urlRepository;
     
-    @PostConstruct
-    private void setUp() {
-        client = ClientBuilder.newClient();
-        idGeneratorTarget = client.target(idGeneratorServiceUrl);
-    }
-
-    @PreDestroy
-    private void destroy() {
-        client.close();
-    }
-
+    @Inject
+    private IdGeneratorClient idGeneratorClient;
+    
     @Override
     public Url createShortUrl(String longUrl) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    @Override
-    public void createShortUrlAsync(String longUrl, AsyncResponse ar) {
-        Future<String> queryIdGeneratorService = idGeneratorTarget
-                .request(MediaType.TEXT_PLAIN)
-                .async()
-                .post(null, new InvocationCallback<String>() {
-                    @Override
-                    public void completed(String shortUrl) {
-                        ar.resume(Util.buildResponse(shortUrl, Response.Status.CREATED));
-                    }
-
-                    @Override
-                    public void failed(Throwable throwable) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                    }
-                });
-    }
-
-    ;
 
     @Override
     public CompletableFuture<Url> createShrotUrlAsync(String longUrl, String baseUri) {
@@ -86,10 +42,7 @@ public class UrlShortenerServiceImpl implements UrlShortenerService {
         
         System.out.println("Inside createShortUrlAsync");
 
-        return CompletableFuture.supplyAsync(
-                () -> idGeneratorTarget
-                        .request(MediaType.TEXT_PLAIN)
-                        .post(null, String.class))
+        return idGeneratorClient.retrieveIdAsync()
                 .thenApply(persistUrl);
     }
 
@@ -104,6 +57,7 @@ public class UrlShortenerServiceImpl implements UrlShortenerService {
                     return CompletableFuture.completedFuture(url)
                             .thenApply(_url -> Util.buildResponse(_url, Response.Status.OK));
                 };
+        System.out.println("Inside createShortUrlIfNotExistAndGetResponseAsync");
         return findByLongUrl(longUrl)
                 .thenCompose(returnFoundedUrlOrCreate);
     }

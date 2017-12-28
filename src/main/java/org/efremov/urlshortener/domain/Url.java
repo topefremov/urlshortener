@@ -14,8 +14,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import org.efremov.urlshortener.domain.Url;
 import org.hibernate.validator.constraints.URL;
 
 /**
