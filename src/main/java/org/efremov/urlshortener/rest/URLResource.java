@@ -91,7 +91,7 @@ public class URLResource {
     @Asynchronous
     @Consumes("application/json")
     public void createShortUrl(@Suspended final AsyncResponse ar, @Valid Url url) {
-        urlShortenerService.createShortUrlIfNotExistAndGetResponseAsync(url.getLongURL(), baseUri)
+        urlShortenerService.createShortUrlIfNotExistAsync(url.getLongURL(), baseUri)
                 .thenAccept(ar::resume);
     }
 }

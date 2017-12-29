@@ -18,6 +18,6 @@ import org.efremov.urlshortener.domain.Url;
 public interface UrlShortenerService {
     Url createShortUrl(String longUrl);
     CompletableFuture<Url> createShrotUrlAsync(String longUrl, String baseUri);
-    CompletableFuture<Response> createShortUrlIfNotExistAndGetResponseAsync(String longUrl, String baseUri);
+    CompletableFuture<Response> createShortUrlIfNotExistAsync(String longUrl, String baseUri);
     CompletableFuture<Url> findByLongUrl(String longUrl);
 }

@@ -32,7 +32,7 @@ public class UrlShortenerServiceImpl implements UrlShortenerService {
     public Url createShortUrl(String longUrl) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
     @Override
     public CompletableFuture<Url> createShrotUrlAsync(String longUrl, String baseUri) {
         Function<String, Url> persistUrl
@@ -40,32 +40,31 @@ public class UrlShortenerServiceImpl implements UrlShortenerService {
                     return urlRepository.create(new Url(baseUri + shortUrl, longUrl));
                 };
         
-        System.out.println("Inside createShortUrlAsync");
-
         return idGeneratorClient.retrieveIdAsync()
-                .thenApply(persistUrl);
+                .thenApplyAsync(persistUrl);
     }
 
     @Override
-    public CompletableFuture<Response> createShortUrlIfNotExistAndGetResponseAsync(String longUrl, String baseUri) {
+    public CompletableFuture<Response> createShortUrlIfNotExistAsync(String longUrl, String baseUri) {
         Function<Url, CompletableFuture<Response>> returnFoundedUrlOrCreate
                 = url -> {
                     if (url == null) {
                         return createShrotUrlAsync(longUrl, baseUri)
-                                .thenApply(_url -> Util.buildResponse(_url, Response.Status.CREATED));
+                                .thenApply(this::buildCreatedResponse);
                     }
-                    return CompletableFuture.completedFuture(url)
-                            .thenApply(_url -> Util.buildResponse(_url, Response.Status.OK));
+                    return CompletableFuture.completedFuture(Util.buildResponse(url, Response.Status.OK));
                 };
-        System.out.println("Inside createShortUrlIfNotExistAndGetResponseAsync");
         return findByLongUrl(longUrl)
                 .thenCompose(returnFoundedUrlOrCreate);
     }
-
+    
+    private Response buildCreatedResponse(Url url) {
+        return Util.buildResponse(url, Response.Status.CREATED);
+    }
+    
     @Override
     public CompletableFuture<Url> findByLongUrl(String longUrl) {
-        return CompletableFuture.supplyAsync(() -> urlRepository.findByLongUrl(longUrl))
-                .thenApply(url -> url);
+        return CompletableFuture.supplyAsync(() -> urlRepository.findByLongUrl(longUrl));
     }
 
 }
